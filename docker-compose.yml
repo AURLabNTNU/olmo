@@ -32,6 +32,10 @@ services:
     restart: always
 
 
+# install docker (including setting permissions) and clone this repository.
+
+# to run influx and grafana containers:
+# docker-compose up -d
 
 # to enter a container iterractively:
 # docker exec -it grafana bash
@@ -43,9 +47,6 @@ services:
 
 # to enter influx:
 # influx #enter influxdb. From influx v2: influx v1 shell
-
-# to run, do this:
-# docker-compose up -d
 
 # to check what is running:
 # docker ps
