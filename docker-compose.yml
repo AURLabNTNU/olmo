@@ -33,6 +33,7 @@ services:
 
 
 # install docker (including setting permissions) and clone this repository.
+# install docker compose sudo apt install docker-compose (alternatively use snap but could case appamrmor conflict)
 
 # to run influx and grafana containers:
 # docker-compose up -d
