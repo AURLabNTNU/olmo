@@ -33,8 +33,8 @@ services:
 
 
 # note, the persmissions of the mounted volumes need to be writable by grafana:
-# sudo chown -R 472:472 lib
-# sudo chown -R 472:472 influxdb
+# (sudo) chown -R 472:472 lib
+# (sudo) chown -R 472:472 influxdb
 
 # to run, do this:
 # docker-compose up -d
