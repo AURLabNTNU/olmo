@@ -32,17 +32,20 @@ services:
     restart: always
 
 
+
+# to enter a container iterractively:
+# docker exec -it grafana bash
+
 # note, the persmissions of the mounted volumes need to be writable by grafana:
-# docker exec -it bash influxdb #enter container
+# docker exec -it influxdb bash
 # (sudo) chown -R 472:472 lib
 # (sudo) chown -R 472:472 influxdb
+
+# to enter influx:
 # influx #enter influxdb. From influx v2: influx v1 shell
 
 # to run, do this:
 # docker-compose up -d
- 
-# to enter a container iterractively:
-# docker exec -it grafana bash
 
 # to check what is running:
 # docker ps
