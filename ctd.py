@@ -32,10 +32,11 @@ class CTD(sensor.Sensor):
         self.influx_clients = influx_clients
 
         # Some constants needed for calculations:
-        self.MUNKHOLMEN_LATITUDE = 63.456314
+        self.munkholmen_LATITUDE = 63.456314
         self.ABSZERO = 273.15
         self.PH_CONSTANT = 1.98416e-4
 
+############## Add instrument rig latitude (and longitude?)
     def load_calibration(self, path=os.path.join(config.base_dir, 'olmo', 'sensor_calibration', '19-8154.xmlcon')):
         with open(path, 'r') as f:
             calibfile = xmltodict.parse(f.read())
@@ -136,7 +137,7 @@ class CTD(sensor.Sensor):
             df_all = df_all.set_index(time_col).tz_localize('CET', ambiguous='infer').tz_convert('UTC')
 
             df_all['density'] = seawater.eos80.dens0(df_all['Salinity'], df_all['Temperature'])
-            df_all['depth'] = seawater.eos80.dpth(df_all['Pressure'], self.MUNKHOLMEN_LATITUDE)
+            df_all['depth'] = seawater.eos80.dpth(df_all['Pressure'], self.munkholmen_LATITUDE)
 
             tag_values = {'tag_sensor': 'ctd',
                           'tag_edge_device': 'munkholmen_topside_pi',

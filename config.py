@@ -17,13 +17,13 @@ munkholmen_ssh_port = int(data['munkholmen_ssh_port'])
 munkholmen_user = data['munkholmen_user']
 sintef_influx_pc = data['sintef_influx_pc']
 az_influx_pc = data['az_influx_pc']
-
+#########################  ADD instrumentrigTrd01 pc and user and port here and in config secrets file
 
 # Sync munkholmen (main):
 rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')
 rsync_inbox_adcp = os.path.join(base_dir, 'Rsync_inbox_adcp')
 main_logfile = "log_munkholmen_ingest_"
-
+############## add main_logfile = "log_instrumentRigTrd01_ingest"
 
 # Sync loggernet:
 loggernet_outbox = f"c:\\Users\{loggernet_user}\LoggerNet_output"
@@ -77,7 +77,22 @@ node2_port = data['port']
 node2_sslmode = data['sslmode']
 node2_logfile = "log_node2_ingest_"
 
+
 # Silcam ingestion:
+
+
+###################### NTNU: make instruementrigTrd01 ingestion here (copy and change from above)  node1, see down.
+#### add node1 to secrets json file
+with open(os.path.join(secrets_dir, 'node1_password'), 'r') as f:
+    node1_pwd = f.read()[:-1]
+with open(os.path.join(secrets_dir, 'node1_secrets.json'), 'r') as f:
+    data = json.load(f)
+node1_dbname = data['dbname']
+node1_user = data['user']
+node1_host = data['host']
+node1_port = data['port']
+node1_sslmode = data['sslmode']
+node1_logfile = "log_node1_ingest_"
 
 
 # Custom data ingestion:
