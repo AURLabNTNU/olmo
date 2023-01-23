@@ -23,8 +23,8 @@ def main():
         InfluxDBClient(config.az_influx_pc, 8086, admin_user, admin_pwd, 'oceanlab'),
         InfluxDBClient(config.sintef_influx_pc, 8086, admin_user, admin_pwd, 'test'),
     ]
-
     ctd = CTD(influx_clients=clients)
+#    ctd_instrumentrigTrd01 = CTD(influx_clients=clients)
     ctd.rsync_and_ingest()
 
     # lisst = Lisst_200(influx_clients=clients)
