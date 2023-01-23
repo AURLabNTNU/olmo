@@ -15,7 +15,7 @@ logger = util_file.init_logger(config.main_logfile, name='olmo.ctd')
 class CTD(sensor.Sensor):
     def __init__(
             self,
-            data_dir=f'/home/{config.munkholmen_user}/olmo/munkholmen/DATA',
+            data_dir=f'/home/{config.munkholmen_user}/olmo/munkholmen/DATA',   # change to import path from somewhere, each ctd can have own path.
             file_regex_l0=r"ready_ctd_(\d{14})\.csv",
             drop_recent_files_l0=0,
             remove_remote_files_l0=True,
@@ -33,6 +33,7 @@ class CTD(sensor.Sensor):
 
         # Some constants needed for calculations:
         self.munkholmen_LATITUDE = 63.456314
+        self.instrumentrigTrd01_LATITUDE = 63.456314 # NTNU.  Correct if necessary
         self.ABSZERO = 273.15
         self.PH_CONSTANT = 1.98416e-4
 

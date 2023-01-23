@@ -113,8 +113,7 @@ class Sensor:
             If rsynced files are deleted using '--remove-source-files' flag
         self.max_files : int
             If not None: maximum number of files to transfer
-        '''
-
+        
         def rsync_file_level(files, remove_remote_files, max_files):
 
             if files is None:
