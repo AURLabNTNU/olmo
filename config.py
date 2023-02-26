@@ -65,6 +65,20 @@ az_backups_folder = 'influx_backups'
 webfigs_dir = os.path.join(output_dir, 'Website_figures')
 
 
+
+# Node 1 ingestion:
+############### FILL IN IF IN USE ######### xxx
+#with open(os.path.join(secrets_dir, 'node2_password'), 'r') as f:
+#    node2_pwd = f.read()[:-1]
+#with open(os.path.join(secrets_dir, 'node2_secrets.json'), 'r') as f:
+#    data = json.load(f)
+#node2_dbname = data['dbname']
+#node2_user = data['user']
+#node2_host = data['host']
+#node2_port = data['port']
+#node2_sslmode = data['sslmode']
+#node2_logfile = "log_node2_ingest_"
+
 # Node 2 ingestion:
 with open(os.path.join(secrets_dir, 'node2_password'), 'r') as f:
     node2_pwd = f.read()[:-1]
