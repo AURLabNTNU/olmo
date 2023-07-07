@@ -1,6 +1,6 @@
 name: olmo_db
 channels:
-    - conda
+    - conda-forge
 dependencies:
     - flake8
     - python=3.9
