@@ -1,4 +1,4 @@
-FROM influxdb:1.8.5
+FROM influxdb:1.8.10
 
 # Add miniforge to the image:
 WORKDIR /download
@@ -17,6 +17,9 @@ RUN conda env create -f ./olmo_db/environment.yml
 # Had issues with activating, but it works interactively (just not from this file)
 RUN conda init bash
 RUN echo "source activate olmo_db" >> ~/.bashrc
+
+# because stretch has been moved to archive. Alternative is to use a newer image than (FROM influxdb:1.8.5) in top of this file or to force use of acrchived stretch
+# RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list
 
 # Install the az cli:
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
