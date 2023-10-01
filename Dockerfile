@@ -1,4 +1,4 @@
-FROM influxdb:1.8.5
+FROM influxdb:1.8.10
 
 # Add miniforge to the image:
 WORKDIR /download
