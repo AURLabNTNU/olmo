@@ -24,6 +24,7 @@ rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')
 rsync_inbox_adcp = os.path.join(base_dir, 'Rsync_inbox_adcp')
 main_logfile = "log_munkholmen_ingest_"
 ############## add main_logfile = "log_instrumentRigTrd01_ingest"
+gas_logfile = "log_gasanalyser_ingest_"
 
 # Sync loggernet:
 loggernet_outbox = f"c:\\Users\{loggernet_user}\LoggerNet_output"

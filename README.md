@@ -1,5 +1,35 @@
-# olmo
-OceanLab Observatory
+# OLMO
+OceanLab Observatory, Automated Data Handling
+
+# Data access
+
+## Graphical portal (grafana)
+
+The starting page for exploring the data graphically is the data portal [here](https://oceanlab.azure.sintef.no/). This is the same site that you will reach if you start at our [homepage](https://oceanlabobservatory.no/) and click on the 'Data Portal' link. On that page you find information about or links to:
+
+ * Our data usage rights
+ * A full list of 'tables' (including an a list of example data from those tables)
+ * A list of pre built dashboards where you find plots of the most commonly used data.
+ * Information on how to download the data found in a plot.
+
+## API access / download from python script
+
+Given user credentials you can write queries directly to the database. This is done using the 'flux' query language. See a getting started [here](https://docs.influxdata.com/influxdb/cloud/query-data/get-started/query-influxdb/).
+
+We reccomend using python to pass the flux query to the influx https endpoint. There is an example script you can work from in this repository here:
+
+ `examples/api_examples.py`
+
+To run this script you will need some libraries, and to set up the environment. This can be done via:
+
+ * Download this code repository
+ * `cd` into the folder where you have this code repository
+ * `conda env create -f environment_users.yml`
+ * `conda activate olmo`
+ * `python setup.py develop`
+ * `python examples/api_examples.py`
+
+If you are unsure which data we have available, and in which 'tables' in the DB that data is found you can either look [here](https://oceanlab.azure.sintef.no/d/YinybPjnk/list-of-all-data?orgId=1) for a full list of tables available. Or you can search using flux, for example in `examples/api_examples.py` there is a query that returns a list of all 'tables' written to in the last six hours that have a 'field key' (data column) as latitude.
 
 # Data collection
 
@@ -14,7 +44,7 @@ and ingest the data. In cases where there is an `_L#`, there can be 4 different
 versions of this variable for the 4 data quality levels.
 
  * `data_dir`: Directory on the munkholmen raspberry pi where data files are found
- * `file_regex_l#`: Regex used to match files in `data_dir` (or list of regex's). This is the main
+ * `file_search_l#`: Regex used to match files in `data_dir` (or list of regex's). This is the main
  controller for the 'level', setting this to None will mean the level is ignored in rsync/ingest.
  * `drop_recent_files_l#`: Number of latest files to ignore (in case they are being written to)
  * `remove_remote_files_l#`
@@ -41,7 +71,7 @@ To generate the access token:
 
  * Click on Shared access tokens and create one.
 
- * Under Allowed IP addresses p the IP of the machien you are on. This can be found with: `curl api.ipify.org`
+ * Under Allowed IP addresses p the IP of the computer you are on. This can be found with: `curl api.ipify.org`
 
 Note that the current access token on Torfinn2 expires at the start of 2023.
 
@@ -81,4 +111,11 @@ Notebooks are found in the `Notebooks` folder. You will also note there is a tab
 
 # Front end
 
-We have implemented a grafana front end, and have some data being displayed on the website. However these are not currently open resources.
+We have implemented a grafana front end, and have some data being displayed on the website. These are not currently open resources.
+
+
+# Development
+
+To develop the code, we generally test into a newly created DB. Running python files from your 'personal' user on the controller PC.
+
+Files on the remote computers should not be deleted until testing has verified that the workflow works correctly. This can be done using the variable `drop_recent_files_lX`, by setting this to false.
