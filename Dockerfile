@@ -28,7 +28,7 @@ RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # Set up cron jobs:
 RUN apt-get update && apt-get -y install cron
-COPY olmo_db/cronjobs_influxmachineNTNU /etc/cron.d/cronjobs_influxmachine
+COPY olmo_db/cronjobs_influxmachine /etc/cron.d/cronjobs_influxmachine
 RUN chmod 0644 /etc/cron.d/cronjobs_influxmachine
 RUN touch /var/log/cron_odp.log
 RUN touch /var/log/cron_backup.log
