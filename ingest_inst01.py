@@ -11,10 +11,10 @@ from ctd import CTD
 
 def main():
 
-    print("Starting running ingest_instrumentrigTrd01.py at "
+    print("Starting running ingest_inst01.py at "
           + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-    logger = util_file.init_logger(config.main_logfile, name='ingest_instrumentrigTrd01')
+    logger = util_file.init_logger(config.main_logfile, name='ingest_inst01')
     logger.info("\n\n------ Starting sync/ingest.")
 
     logger.info("Fetching the influxdb clients.")
