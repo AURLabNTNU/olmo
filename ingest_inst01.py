@@ -22,8 +22,8 @@ def main():
     clients = [
 #        InfluxDBClient(config.az_influx_pc, 8086, admin_user, admin_pwd, 'oceanlab'),
 #        InfluxDBClient(config.sintef_influx_pc, 8086, admin_user, admin_pwd, 'test'),
-        InfluxDBClient(config.ntnu_influx_pc, 8086, admin_user_ntnu, admin_pwd_ntnu, 'test'),
-
+        InfluxDBClient(config.ntnu_influx_pc, 8086, admin_user, admin_pwd, 'oceanlabNTNU'),
+        InfluxDBClient(config.ntnu_influx_pc, 8086, admin_user, admin_pwd, 'test'),
     ]
 
     ctd = CTD(influx_clients=clients)
