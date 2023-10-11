@@ -2,7 +2,7 @@ import os
 import json
 
 # General:
-print("hello test 88")
+print("hello test 888")
 if (base_dir := os.getenv("OLMO_BASE_DIRECTORY")) is None:
     print("Warning. Env var OLMO_BASE_DIRECTORY not set correctly.")
 
