@@ -88,7 +88,7 @@ webfigs_dir = os.path.join(output_dir, 'Website_figures')
 
 ###################### NTNU: make instruementrigTrd01 ingestion here (copy and change from above)  node1, see down.
 #### add node1 to secrets json file
-with open(os.path.join(secrets_dir, 'node1_password'), 'r') as f:
+with open(os.path.join(secrets_dir, 'influx_node1_credentials'), 'r') as f:
     node1_pwd = f.read()[:-1]
 with open(os.path.join(secrets_dir, 'node1_secrets.json'), 'r') as f:
     data = json.load(f)
