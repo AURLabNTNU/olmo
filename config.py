@@ -58,7 +58,7 @@ main_logfile = "log_inst01_ingest_"
 #     "IngdalenCR6_Debug_",
 #     "IngdalenCR6_CFluor_",
 #     "IngdalenCR6_Wave_",
-]
+# ]
 loggernet_logfile = "log_loggernet_ingest_"
 logpc_ssh_max_attempts = 3
 
