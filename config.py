@@ -21,6 +21,7 @@ az_influx_pc = data['az_influx_pc']
 inst01_pc = data['inst01_pc']
 inst01_ssh_port = int(data['inst01_ssh_port'])
 inst01_user = data['inst01_user']
+NTNU_influx_pc = data['NTNU_influx_pc']
 
 # Sync munkholmen (main):
 # rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')
