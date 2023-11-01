@@ -65,8 +65,10 @@ class Sensor:
         # TODO: Need to handle the ls_err (below in both statements) in some way.
         if recursive_file_search:
             ls_out, ls_err = util_file.find_remote(
-                config.munkholmen_user, config.munkholmen_pc,
-                self.data_dir, file_regex, port=config.munkholmen_ssh_port)
+                config.inst01_user, config.inst01_pc,
+                self.data_dir, file_regex, port=config.inst01_ssh_port)
+#                config.munkholmen_user, config.munkholmen_pc,
+#                self.data_dir, file_regex, port=config.munkholmen_ssh_port)
             # Using find_remote() it should already filter. Thus just split up string:
             files = ls_out.split('\n')
             if files[-1] == '':
@@ -77,8 +79,10 @@ class Sensor:
             files.sort()
         else:
             ls_out, ls_err = util_file.ls_remote(
-                config.munkholmen_user, config.munkholmen_pc,
-                self.data_dir, port=config.munkholmen_ssh_port)
+                config.inst01_user, config.inst01_pc,
+                self.data_dir, port=config.inst01_ssh_port)
+#                config.munkholmen_user, config.munkholmen_pc,
+#                self.data_dir, port=config.munkholmen_ssh_port)
             files = []
             while True:
                 match = re.search(file_regex, ls_out)
