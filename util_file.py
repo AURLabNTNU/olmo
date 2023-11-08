@@ -118,9 +118,14 @@ def find_remote(user, machine, directory, search, port=22):
     '''
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(machine, username=user, port=port)
-
-    command = f"find {directory} -name '{search}'"
+#    ssh.connect(machine, username=user, port=port)
+    ssh.connect(machine, username=user, port=port) ## TODO NTNU password temporarily added
+    password=
+    # TODO check automoatically if ssh host is linux or windows.
+#    command = f"find {directory} -name '{search}'"   # For linux
+    search="rig*"
+    directory="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\" 
+    command=f'dir /b /a-d {directory}{search}' # for windows
     stdin, stdout, stderr = ssh.exec_command(command)
     stdout = stdout.read().decode(errors='ignore'), stderr.read().decode(errors='ignore')
 
