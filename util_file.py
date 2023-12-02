@@ -3,6 +3,7 @@ import re
 import logging
 import datetime
 import paramiko
+import time ## to sleep to avoid SSH error
 
 import config
 
@@ -71,7 +72,7 @@ def remove_timestring(filepath):
         return base_name
 
 
-def ls_remote(user, machine, directory, port=22):
+def ls_remote(user, pwd, machine, directory, port=22):     # pwd added for NTNU, but fix to make ntnu/sintef compatible.
     '''
     Perform 'ls' over ssh onto linux machine.
 
@@ -89,16 +90,37 @@ def ls_remote(user, machine, directory, port=22):
     '''
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(machine, username=user, port=port)
-
-    command = f"ls {directory}"
-    stdin, stdout, stderr = ssh.exec_command(command)
+    print(machine, user, port, "if stopping here, maybe wrong ip, user, password")
+    ssh.connect(machine, username=user, password=pwd, port=port)  # todo password added for NTNU but must be fixed to be used with both ntnu and sintef.
+##    ssh.connect(machine, username=user, port=port)
+    print("hello3429")
+##    command = f"ls {directory}"  
+##    command = f"dir {directory}"  # delete
+    search="rig*" ##todo this variable should be moved to json file. it should also include the word CTD.
+    directory2="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\" #delete
+    command=f'dir /b /a-d {directory}{search}'  ## Todo, this was adopted to NTNU win machine.
+    print("retreaving files from ", directory)
+    stdin, stdout, stderr = ssh.exec_command(command) 
+    # stdin, stdout, stderr = ssh.exec_command(command)  delete  
     stdout = stdout.read().decode(errors='ignore'), stderr.read().decode(errors='ignore')
+    print('stdout', type(stdout)) # delete
+    print('stdin', type(stdin))   # delete
+    print('stderr', type(stderr)) # delete
+    print('length of stdout ',len(stdout))    # delete
 
+    stdout0 = stdout[0]    # added for ntnu windows. not sure if it works on linux
+    stdout1 = stdout[1]      # added for ntnu windows. not sure if it works on linux
+    stdoutSplit = stdout0.splitlines()      # added for ntnu windows. not sure if it works on linux
+    stdout0 = "\n".join(stdoutSplit)     # added
+    stdout = (stdout0, stdout1)      # added for ntnu windows. not sure if it works on linux
+# print('printing stdout[2]', stdout[2])  # delete
+    print('hello29')   #delete prints
+    print(type(stdout))
+    print("printing ls_remote output", stdout)
+    print('hello30')
     return stdout
 
-
-def find_remote(user, machine, directory, search, port=22):
+def find_remote(user, pwd, machine, directory, search, port=22):
     '''
     Perform 'find {directory} -name '{search}'"' over ssh onto linux machine.
     Note this returns the full file path, not relative to 'directory'.
@@ -119,16 +141,17 @@ def find_remote(user, machine, directory, search, port=22):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 #    ssh.connect(machine, username=user, port=port)
-    ssh.connect(machine, username=user, port=port) ## TODO NTNU password temporarily added
-    password=
-    # TODO check automoatically if ssh host is linux or windows.
+    ssh.connect(machine, username=user, password=pwd, port=port) ## TODO NTNU password temporarily added
+    print("ssh connect find_remote finished")    
+# TODO check automoatically if ssh host is linux or windows.
 #    command = f"find {directory} -name '{search}'"   # For linux
     search="rig*"
-    directory="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\" 
+    directory="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test\\"  # for windows
     command=f'dir /b /a-d {directory}{search}' # for windows
     stdin, stdout, stderr = ssh.exec_command(command)
+    time.sleep(1)
     stdout = stdout.read().decode(errors='ignore'), stderr.read().decode(errors='ignore')
-
+    print(stdout)
     return stdout
 
 

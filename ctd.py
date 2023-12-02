@@ -17,14 +17,17 @@ class CTD(sensor.Sensor):
         # Init the Sensor() class: This sets some defaults.
         super(CTD, self).__init__()
         self.influx_clients = influx_clients
-        self.data_dir = f'/home/{config.munkholmen_user}/olmo/munkholmen/DATA'
-        self.file_search_l0 = r"ready_ctd_(\d{14})\.csv"
+##        self.data_dir = f'/home/{config.munkholmen_user}/olmo/munkholmen/DATA'  ## Todo: adopted to NTNU. 
+        self.data_dir = f'C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test\\'   # todo should end with slash?
+##        self.data_dir = f'C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test' 
+##        self.file_search_l0 = r"ready_ctd_(\d{14})\.csv"  # TODO  Merge  Sintef and NTNU
+        self.file_search_l0 = r"rig01Trd-NTNU-(\d{8})-(\d{6}).txt"
         self.drop_recent_files_l0 = 0
         self.remove_remote_files_l0 = True
         self.max_files_l0 = None
 
         # Some constants needed for calculations:
-        self.munkholmen_LATITUDE = 63.456314
+        self.munkholmen_LATITUDE = 63.456314   ## todo merge ntnu and sintef
         self.instrumentrigTrd01_LATITUDE = 63.456314 # NTNU.  Correct if necessary
         self.ABSZERO = 273.15
         self.PH_CONSTANT = 1.98416e-4

@@ -58,15 +58,15 @@ class Sensor:
         -------
         list
         '''
-
+        print(f"regex file search word:  {file_regex}")
         if (self.data_dir is None) or (file_regex is None):
             raise ValueError("fetch_files_list() requires 'data_dir' and 'file_regex' are set.")
 
         # TODO: Need to handle the ls_err (below in both statements) in some way.
         if recursive_file_search:
             ls_out, ls_err = util_file.find_remote(
-                config.inst01_user, config.inst01_pc,
-                self.data_dir, file_regex, port=config.inst01_ssh_port)
+                config.inst01_user, config.inst01_pwd, config.inst01_pc,   ## todo adopt to sintef
+                self.data_dir, file_regex, port=config.inst01_ssh_port) ## todo adopt to sintef
 #                config.munkholmen_user, config.munkholmen_pc,
 #                self.data_dir, file_regex, port=config.munkholmen_ssh_port)
             # Using find_remote() it should already filter. Thus just split up string:
@@ -79,13 +79,18 @@ class Sensor:
             files.sort()
         else:
             ls_out, ls_err = util_file.ls_remote(
-                config.inst01_user, config.inst01_pc,
-                self.data_dir, port=config.inst01_ssh_port)
+                config.inst01_user, config.inst01_pwd, config.inst01_pc,
+                self.data_dir, port=config.inst01_ssh_port)   ## todo pwd added for ntnu but fix to make compatible for ntnu/sintef
 #                config.munkholmen_user, config.munkholmen_pc,
 #                self.data_dir, port=config.munkholmen_ssh_port)
             files = []
             while True:
+                print('ls_out ', ls_out)
+                print('file_regex ', file_regex)
+                print('type ls_out: ', type(ls_out))
+                print('type file_regex: ', type(file_regex))
                 match = re.search(file_regex, ls_out)
+                print('match is: ', match)
                 if match is None:
                     break
                 else:
@@ -112,7 +117,7 @@ class Sensor:
         ## should tripple quotes end here? YES
         '''
 
-        def rsync_file_level(files, remove_remote_files, max_files):
+        def rsync_file_level(files, remove_remote_files, max_files): 
 
             if files is None:
                 return
@@ -129,9 +134,18 @@ class Sensor:
                 remove_flag = ''
 
             rsynced_files = []
+            print("rsynced_files in def sync def rsync file level: ", rsynced_files)   # delete
             for f in files:
-                rsync_path = f"{config.munkholmen_user}@{config.munkholmen_pc}:{os.path.join(self.data_dir, f)}"
-                exit_code = os.system(f'rsync -a{remove_flag} --rsh="ssh -p {config.munkholmen_ssh_port}" {rsync_path} {config.rsync_inbox_adcp}')
+                print("todo: change for ntnu might needs to be done here")
+#                rsync_path = f"{config.munkholmen_user}@{config.munkholmen_pc}:{os.path.join(self.data_dir, f)}"
+#                exit_code = os.system(f'rsync -a{remove_flag} --rsh="ssh -p {config.munkholmen_ssh_port}" {rsync_path} {config.rsync_inbox_adcp}')
+                print('self.data_dir is: ', self.data_dir)
+                print('file to rsync is: ', f)
+                self.data_dir=self.data_dir.replace("\\", "/")    #convert slash from win to linux (for use in windows)
+                print('self.data_dir is: ', self.data_dir)
+                rsync_path = f"{config.inst01_user}@{config.inst01_pc}:{os.path.join(self.data_dir, f)}"   # adopting to NTNU
+                print('rsync_path is : ', rsync_path) ## delete
+                exit_code = os.system(f'rsync -a{remove_flag} --rsh="ssh -p {config.munkholmen_ssh_port}" {rsync_path} {config.rsync_inbox_adcp}')   #adpoting to ntnu
                 if exit_code != 0:
                     logger.error(f"Rsync for file {f} didn't work, output sent to stdout, (probably the log from the cronjob).")
                     return rsynced_files
