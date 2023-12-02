@@ -7,7 +7,7 @@ import config
 
 logger = logging.getLogger('olmo.sensor')
 
-
+# This line is only to test a commit push. Delete it. 
 class Sensor:
     '''Base sensor class that non-loggernet sensors should inherit from.'''
     def __init__(self):
