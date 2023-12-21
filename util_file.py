@@ -90,22 +90,20 @@ def ls_remote(user, pwd, machine, directory, port=22):     # pwd added for NTNU,
     '''
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    print(machine, user, port, "if stopping here, maybe wrong ip, user, password")
+    print(machine, user, port, directory, "if stopping here, maybe wrong ip, user, password")
     ssh.connect(machine, username=user, password=pwd, port=port)  # todo password added for NTNU but must be fixed to be used with both ntnu and sintef.
 ##    ssh.connect(machine, username=user, port=port)
-    print("hello3429")
 ##    command = f"ls {directory}"  
 ##    command = f"dir {directory}"  # delete
     search="rig*" ##todo this variable should be moved to json file. it should also include the word CTD.
-    directory2="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\" #delete
     command=f'dir /b /a-d {directory}{search}'  ## Todo, this was adopted to NTNU win machine.
-    print("retreaving files from ", directory)
+    print("retreaving file names from ", directory)
     stdin, stdout, stderr = ssh.exec_command(command) 
     # stdin, stdout, stderr = ssh.exec_command(command)  delete  
     stdout = stdout.read().decode(errors='ignore'), stderr.read().decode(errors='ignore')
-    print('stdout', type(stdout)) # delete
-    print('stdin', type(stdin))   # delete
-    print('stderr', type(stderr)) # delete
+#    print('stdout', type(stdout)) # delete
+#    print('stdin', type(stdin))   # delete
+#    print('stderr', type(stderr)) # delete
     print('length of stdout ',len(stdout))    # delete
 
     stdout0 = stdout[0]    # added for ntnu windows. not sure if it works on linux
@@ -114,13 +112,12 @@ def ls_remote(user, pwd, machine, directory, port=22):     # pwd added for NTNU,
     stdout0 = "\n".join(stdoutSplit)     # added
     stdout = (stdout0, stdout1)      # added for ntnu windows. not sure if it works on linux
 # print('printing stdout[2]', stdout[2])  # delete
-    print('hello29')   #delete prints
-    print(type(stdout))
+#    print(type(stdout))
     print("printing ls_remote output", stdout)
-    print('hello30')
+
     return stdout
 
-def find_remote(user, pwd, machine, directory, search, port=22):
+def find_remote(user, pwd, machine, directory, search, port=22):  # If i remember right, NTNU added pwd, maybe remove and find through config isntead.
     '''
     Perform 'find {directory} -name '{search}'"' over ssh onto linux machine.
     Note this returns the full file path, not relative to 'directory'.
@@ -146,12 +143,20 @@ def find_remote(user, pwd, machine, directory, search, port=22):
 # TODO check automoatically if ssh host is linux or windows.
 #    command = f"find {directory} -name '{search}'"   # For linux
     search="rig*"
-    directory="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test\\"  # for windows
+##############  todo, fix the 1 linews below !!!!!!!!! directory shouldbe a variable from ingest_xxx.py
+#    directory="C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test\\"  # for windows
+
+# This functionis currently no longer used by NTNU, but if needed, check that it works. 
+#    print('before: ', directory)
+#    directory="C:\\Users\\aurlab\\Documents\\InstrRig01_CTD\\"  # for windows
+#    print('and After: ', directory)
+
     command=f'dir /b /a-d {directory}{search}' # for windows
+    print('check if this is the right command and directory: ', command)
     stdin, stdout, stderr = ssh.exec_command(command)
     time.sleep(1)
     stdout = stdout.read().decode(errors='ignore'), stderr.read().decode(errors='ignore')
-    print(stdout)
+#    print(stdout)   # iterative, takes long time, all files, for each file. 
     return stdout
 
 

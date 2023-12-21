@@ -18,13 +18,13 @@ def main():
     logger.info("\n\n------ Starting sync/ingest.")
 
     logger.info("Fetching the influxdb clients.")
-    admin_user, admin_pwd = util_file.get_user_pwd(os.path.join(config.secrets_dir, 'influx_admin_credentials'))
+    admin_user, admin_pwd = util_file.get_user_pwd(os.path.join(config.secrets_dir, 'influx_admin_ntnu_credentials'))
+    print('admin_user', 'admin_pwd')
     clients = [
 #        InfluxDBClient(config.az_influx_pc, 8086, admin_user, admin_pwd, 'oceanlab'),
 #        InfluxDBClient(config.sintef_influx_pc, 8086, admin_user, admin_pwd, 'test'),
-        InfluxDBClient(config.NTNU_influx_pc, 8086, admin_user, admin_pwd, 'test'),
-
-    ]
+        InfluxDBClient(config.NTNU_influx_pc, '8086', admin_user, admin_pwd, 'node1_ctd')  # ip, port, influxdb user and pwd, database name
+    ]    # InfluxDBClient is python library 
 
     ctd = CTD(influx_clients=clients)
     ctd.rsync_and_ingest()

@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seawater
 import xmltodict
+from datetime import date, time
 
 import sensor
 import config
@@ -18,11 +19,14 @@ class CTD(sensor.Sensor):
         super(CTD, self).__init__()
         self.influx_clients = influx_clients
 ##        self.data_dir = f'/home/{config.munkholmen_user}/olmo/munkholmen/DATA'  ## Todo: adopted to NTNU. 
-        self.data_dir = f'C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test\\'   # todo should end with slash?
+        self.data_dir = f'C:\\Users\\aurlab\\Documents\\InstrRig01_CTD\\'   # todo should end with slash?
+        self.data_dir_rsync_source = f'Documents\\InstrRig01_CTD\\'   # same as above but shorter. needed for rsync with windows. For linux the two variables probably will be the same.
+        self.data_dir_rsync_back = f'Documents\\InstrRig01_CTD_backup\\' # files moves to this folder before deleting. 
+#        self.data_dir_rsync_back = f'Documents\\InstrRig01_CTD_delete\\'
 ##        self.data_dir = f'C:\\Users\\aurlab\\Documents\\DeleteInstRig\\test' 
 ##        self.file_search_l0 = r"ready_ctd_(\d{14})\.csv"  # TODO  Merge  Sintef and NTNU
         self.file_search_l0 = r"rig01Trd-NTNU-(\d{8})-(\d{6}).txt"
-        self.drop_recent_files_l0 = 0
+        self.drop_recent_files_l0 = 1   ## if you write 1, the last file will not be copied and ingested and deleted. See sensor.py
         self.remove_remote_files_l0 = True
         self.max_files_l0 = None
 
@@ -32,7 +36,7 @@ class CTD(sensor.Sensor):
         self.ABSZERO = 273.15
         self.PH_CONSTANT = 1.98416e-4
 
-############## Add instrument rig latitude (and longitude?)
+############## Add instrument rig latitude (and longitude?) (and calibration?)
     def load_calibration(self, path=os.path.join(config.base_dir, 'olmo', 'sensor_calibration', '19-8154.xmlcon')):
         with open(path, 'r') as f:
             calibfile = xmltodict.parse(f.read())
@@ -124,87 +128,164 @@ class CTD(sensor.Sensor):
 
     def ingest_l0(self, files):
 
+        ## NTNU [MeasurementMetadata] 
+        ## Columns=Date,Time,Battery,Cond,ADC,TempCT,ADC,Pressure,ADC,UV,Salinity,Density,CalcSV,Depth   maybe wrong ctd, with turbidity
+        ## Units=yyyy-mm-dd,hh:mm:ss.ss,V,mS/cm,none,C,none,dbar,2sComp,Status,PSU,kg/cm3,m/s,m   maybe wrong ctd, with turbidity
+        ## 2023-04-23,11:40:33.57,8.87,0.000,561,22.674,388849,0.15,832635,0,-99.989998,-99.989998,-99.989998,0.15  maybe wrong ctd, with turbidity
+
+# CTD without turbidity
+# '2023-06-09','13:55:26.62','8.83','35.173','7.850','92.09','0.34','1','33.986626','1026.921021','1482.143921','91.56']]  # 12 elements  (non-turbidity ctd)
+# df_all.columns = ['Date','Time','Battery','Cond','TempCT','Pressure','ADC','UV','Salinity','Density','CalcSV','Depth']    # 12 elements  (non-turbidity ctd)
+
         for f in files:
             df_all = pd.read_csv(f, sep=',')
-
-            time_col = 'Timestamp'
-            df_all = util_db.force_float_cols(df_all, not_float_cols=[time_col], error_to_nan=True)
-            df_all[time_col] = pd.to_datetime(df_all[time_col], format='%Y-%m-%d %H:%M:%S')
+            print('\n', df_all.head)
+            print(len(df_all.columns))
+            if len(df_all.columns)==12:
+                 # use following line for ctd used on instrument rig 1, summer 2023.
+                 df_all.columns = ['Date','Time','Battery','Conductivity','Temperature','Pressure','ADC','UV','Salinity','Density','CalcSV','Depth']    # 12 elements  (non-turbidity ctd) (aml CTD uses capital first letter)
+                 # names used by aml: ['Date','Time','Battery','Cond','TempCT','Pressure','ADC','UV','Salinity','Density','CalcSV','Depth'] 
+            else: #  if len(df_all.columns)=14:    # if  not right length, pandas create an error messae. and stops.
+                 # use this following line for ctd used from dec 2023
+                 df_all.columns = ['Date','Time','Battery','Conductivity','ADC_1','Temperature','ADC_2','Pressure','ADC_3','UV','Salinity','Density','CalcSV','Depth']    # 12 elements  (non-turbidity ctd) (aml CTD uses capital first letter)
+                 ##Columns=Date,Time,Battery,Cond,ADC,TempCT,ADC,Pressure,ADC,UV,Salinity,Density,CalcSV,Depth    14 columns
+                 ##Units=yyyy-mm-dd,hh:mm:ss.ss,V,mS/cm,none,C,none,dbar,2sComp,Status,PSU,kg/cm3,m/s,m    14 columns
+                 ##Example: 14,22:52:42.43,8.84,36.240,48763,8.689,194123,92.50,2066358,0,34.306305,1027.045044,1485.696899,91.59
+#            df_all.columns = ['Date','Time','Battery','Cond','ADC','TempCT','ADC','Pressure','ADC','UV','Salinity','Density','CalcSV','Depth']  # wrong ctd 
+            print('\n', df_all.head)
+#            df_all = util_db.force_float_cols(df_all, not_float_cols=[time_col], error_to_nan=True)  # sintef
+            df_all['Time'] = pd.to_datetime(df_all['Date'] + ' ' + df_all['Time'])  # ntnu merging date and time and making it a time object
+            df_all.rename(columns={"Time": "Timestamp"}, inplace=True)
+            df_all = df_all.drop(columns=['Date'])  # ntnu deleting date column
+#            df_all['Timestamp'] = df_all['Timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')  # NTNU changing date format to match olmo code. Converts to human readable time.
+            time_col = 'Timestamp'   # sintef (and ntnu)
+#            df_all[time_col] = pd.to_datetime(df_all[time_col], format='%Y-%m-%d %H:%M:%S') #sintef
+#            time_col = 'Timestamp' #sintef
             df_all = df_all.set_index(time_col).tz_localize('CET', ambiguous='infer').tz_convert('UTC')
+# delete           df_all.rename(columns={"tempCT": "Temperature"}, inplace=True) # NTNU, for using same names as sintef
+# density and depth do not have to be calculated, is already calculated by ctd
+#            df_all['density'] = seawater.eos80.dens0(df_all['Salinity'], df_all['Temperature'])
+# depth does not have to be calculated
+#            df_all['depth'] = seawater.eos80.dpth(df_all['Pressure'], self.munkholmen_LATITUDE)
+            print('\n', df_all.head)
+##### REMEMBER TO MAKE ALL integers to FLOAT except Timestamp ###########
+#            print('after indexing: ', df_all['Timestamp'])  #cant be used, see next line:
+            print('after indexing: ', df_all)
+# delete            df_all.set_index('Timestamp', inplace=True) # make index before sending to influxdb
 
-            df_all['density'] = seawater.eos80.dens0(df_all['Salinity'], df_all['Temperature'])
-            df_all['depth'] = seawater.eos80.dpth(df_all['Pressure'], self.munkholmen_LATITUDE)
+# values used by munkholmen ctd and not used by instrument rig
+#            tag_values = {'tag_sensor': 'ctd',
+#                          'tag_edge_device': 'munkholmen_topside_pi',
+#                          'tag_platform': 'munkholmen',
+#                          'tag_data_level': 'raw',
+#                          'tag_approved': 'no',
+#                          'tag_unit': 'none'}
 
+# instrument rig CTD values
             tag_values = {'tag_sensor': 'ctd',
-                          'tag_edge_device': 'munkholmen_topside_pi',
-                          'tag_platform': 'munkholmen',
+                          'tag_edge_device': 'instrument_rig_01_topside_pc',
+                          'tag_platform': 'instrument_rig_01',
                           'tag_data_level': 'raw',
                           'tag_approved': 'no',
                           'tag_unit': 'none'}
 
+            print('01')
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_temperature_munkholmen'
+#            measurement_name = 'ctd_temperature_munkholmen'
+            measurement_name = 'ctd_temperature_instrument_rig_01'
             field_keys = {"Temperature": 'temperature'}
             tag_values['tag_unit'] = 'degrees_celcius'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
+            print('02')
+            print(df)
+#### DOES THE DF NEED ONE COLUMN SELECTED AS INDEX???????
+#try
+#            util_db.ingest_df(measurement_name, df, )
+#            exit()
             util_db.ingest_df(measurement_name, df, self.influx_clients)
+            print('03')
+
+# example   df
+#temperature tag_sensor  ... tag_approved         tag_unit
+#Timestamp                                                 ...                              
+#2023-06-05 01:54:24.070000+00:00        7.838        ctd  ...           no  degrees_celcius
+#2023-06-05 01:54:24.570000+00:00        7.838        ctd  ...           no  degrees_celcius
+#[2 rows x 7 columns]
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_conductivity_munkholmen'
+#            measurement_name = 'ctd_conductivity_munkholmen'
+            measurement_name = 'ctd_conductivity_instrument_rig_01'
             field_keys = {"Conductivity": 'conductivity'}
             tag_values['tag_unit'] = 'siemens_per_metre'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
             util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_pressure_munkholmen'
+#            measurement_name = 'ctd_pressure_munkholmen'
+            measurement_name = 'ctd_pressure_instrument_rig_01'
             field_keys = {"Pressure": 'pressure'}
             tag_values['tag_unit'] = 'none'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
             util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # -------------drop----------------------------------------------- #
-            measurement_name = 'ctd_sbe63_munkholmen'
-            field_keys = {"SBE63": 'sbe63',
-                          "SBE63Temperature": 'sbe63_temperature_voltage'}
-            tag_values['tag_unit'] = 'none'
-            df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
-            util_db.ingest_df(measurement_name, df, self.influx_clients)
+#            measurement_name = 'ctd_sbe63_munkholmen'
+#            measurement_name = 'ctd_sbe63_instrument_rig_01'
+#            field_keys = {"SBE63": 'sbe63',
+#                          "SBE63Temperature": 'sbe63_temperature_voltage'}
+#            tag_values['tag_unit'] = 'none'
+#            df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
+#            util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_salinity_munkholmen'
+#            measurement_name = 'ctd_salinity_munkholmen'
+            measurement_name = 'ctd_salinity_instrument_rig_01'
             field_keys = {"Salinity": 'salinity'}
             tag_values['tag_unit'] = 'none'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
             util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_voltages_munkholmen'
-            field_keys = {"Volt0": 'volt0',
-                          "Volt1": 'volt1',
-                          "Volt2": 'volt2',
-                          "Volt4": 'volt4',
-                          "Volt5": 'volt5'}
-            tag_values['tag_unit'] = 'none'
-            df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
-            util_db.ingest_df(measurement_name, df, self.influx_clients)
+#            measurement_name = 'ctd_voltages_munkholmen'
+#            field_keys = {"Volt0": 'volt0',
+#                          "Volt1": 'volt1',
+#                          "Volt2": 'volt2',
+#                          "Volt4": 'volt4',
+#                          "Volt5": 'volt5'}
+#            tag_values['tag_unit'] = 'none'
+#            df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
+#            util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_depth_munkholmen'
-            field_keys = {"depth": 'depth'}
+#            measurement_name = 'ctd_voltages_instrument_rig_01'
+#            field_keys = {"Volt0": 'volt0',
+#                          "Volt1": 'volt1',   we only have battery voltage, remove the rest
+#                          "Volt2": 'volt2',
+#                          "Volt4": 'volt4',
+#                          "Volt5": 'volt5'}
+#            tag_values['tag_unit'] = 'none'
+#            df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
+#            util_db.ingest_df(measurement_name, df, self.influx_clients)
+
+            # ------------------------------------------------------------ #
+#            measurement_name = 'ctd_depth_munkholmen'
+            measurement_name = 'ctd_depth_instrument_rig_01'
+            field_keys = {"Depth": 'depth'}
             tag_values['tag_unit'] = 'metres'
             tag_values['tag_data_level'] = 'processed'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
             util_db.ingest_df(measurement_name, df, self.influx_clients)
 
             # ------------------------------------------------------------ #
-            measurement_name = 'ctd_density_munkholmen'
-            field_keys = {"density": 'density'}
+#            measurement_name = 'ctd_density_munkholmen'
+            measurement_name = 'ctd_density_instrument_rig_01'
+            field_keys = {"Density": 'density'}
             tag_values['tag_unit'] = 'kilograms_per_cubic_metre'
             tag_values['tag_data_level'] = 'processed'
             df = util_db.filter_and_tag_df(df_all, field_keys, tag_values)
             util_db.ingest_df(measurement_name, df, self.influx_clients)
 
+            print('9')
             logger.info(f'File {f} ingested.')
 
     def rsync_and_ingest(self):

@@ -3,6 +3,10 @@ import datetime
 import re
 import numpy as np
 import pandas as pd
+import os  # delete
+from datetime import datetime    # delete
+from influxdb import InfluxDBClient    # delete
+from influxdb import DataFrameClient    # !!
 
 logger = logging.getLogger('olmo.util_db')
 
@@ -36,10 +40,11 @@ def ingest_df(measurement, df, clients):
             'tags': {t[4:]: row[t] for t in tag_cols},
             'fields': {f: row[f] for f in field_cols},
         })
-
+#    print('printing data: ', data)
+## Create database manually if not already exists
+    print(len(clients))
     for c in clients:
         c.write_points(data)
-
 
 def force_float_cols(df, float_cols=None, not_float_cols=None, error_to_nan=False):
     '''

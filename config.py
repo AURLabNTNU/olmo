@@ -24,17 +24,12 @@ inst01_user = data['inst01_user']
 inst01_pwd = data['inst01_pwd']
 NTNU_influx_pc = data['NTNU_influx_pc']
 
-# Sync munkholmen (main):
-# rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')
-# rsync_inbox_adcp = os.path.join(base_dir, 'Rsync_inbox_adcp')
-# main_logfile = "log_munkholmen_ingest_"
-# gas_logfile = "log_gasanalyser_ingest_"
-
-# Sync Instrument rig 01 topside pc (main):
-rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')
-# rsync_inbox_adcp = os.path.join(base_dir, 'Rsync_inbox_adcp')
-main_logfile = "log_inst01_ingest_"
-############## add main_logfile = "log_instrumentRigTrd01_ingest"
+# Sync munkholmen (main):      # todo commented out by ntnu
+rsync_inbox = os.path.join(base_dir, 'Rsync_inbox')    # there was a semi colon at the end of the sentence, why.
+rsync_inbox_adcp = os.path.join(base_dir, 'Rsync_inbox_adcp/') # / slash added by ntnu. 
+# main_logfile = "log_munkholmen_ingest_":      # todo commented out by ntnu
+main_logfile = "log_inst01_ingest_"      # todo commented out by ntnu
+gas_logfile = "log_gasanalyser_ingest_"
 
 # Sync loggernet: NOT IN USE AT THE MOMENT AT NTNU DB
 # loggernet_outbox = f"c:\\Users\{loggernet_user}\LoggerNet_output"
