@@ -1,0 +1,11 @@
+Put this into crontab on your linux machine where ingest_instr01.py in olmo is running:
+
+# m h  dom mon dow   command
+# OLMO_BASE_DIRECTORY=/home/# OLMO_LOG_DIRECTORY=/home/Output/# BEcause crontab does not pick up the usual env variables
+OLMO_BASE_DIRECTORY=/home
+OLMO_LOG_DIRECTORY=/home/Output
+# secrets_dir=/home/Secrets
+*/10 * * * * /usr/bin/flock -w 0 /home/Flock/ingest_inst01.lock /root/mambaforge/envs/olmo_db/bin/python /home/olmo/ingest_inst01.py  >/tmp/cronIngest_inst01.log 2>&1
+
+
+It will run the py code every 10 min.
